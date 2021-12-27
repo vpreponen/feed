@@ -154,13 +154,21 @@ export default (ins: Feed) => {
      * Item Author
      * https://validator.w3.org/feed/docs/rss2.html#ltauthorgtSubelementOfLtitemgt
      */
+    let isDublinCore = false;
     if (Array.isArray(entry.author)) {
       item.author = [];
+      item["dc:creator"] = [];
       entry.author.map((author: Author) => {
         if (author.email && author.name) {
           item.author.push({ _text: author.email + " (" + author.name + ")" });
+        } else if (author.name) {
+          isDublinCore = true;
+          item["dc:creator"].push({ _cdata: author.name });
         }
       });
+    }
+    if (isDublinCore) {
+      base.rss._attributes["xmlns:dc"] = "http://purl.org/dc/elements/1.1/";
     }
     /**
      * Item Category
